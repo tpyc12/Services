@@ -23,9 +23,9 @@ class MyJobService : JobService() {
                 var workItem = params?.dequeueWork()
                 while (workItem != null) {
                     val page = workItem.intent.getIntExtra(PAGE, 0)
-                    for (i in 0 until 100) {
+                    for (i in 0 until 3) {
                         delay(1000)
-                        log("Timer $i")
+                        log("Timer $i $page")
                     }
                     params?.completeWork(workItem)
                     workItem = params?.dequeueWork()
