@@ -16,18 +16,27 @@ class MyForegroundService : Service() {
 
     private val scope = CoroutineScope(Dispatchers.Main)
 
+    private val notificationManager by lazy {
+        getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    private val notificationBuilder by lazy {
+        createNotificationBuilder()
+    }
+
     override fun onCreate() {
         super.onCreate()
         log("onCreate")
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification())
+        startForeground(NOTIFICATION_ID, notificationBuilder.build())
     }
 
-    private fun createNotification() = NotificationCompat.Builder(this, CHANNEL_ID)
+    private fun createNotificationBuilder() = NotificationCompat.Builder(this, CHANNEL_ID)
         .setContentTitle("notification")
         .setContentText("message")
         .setSmallIcon(R.drawable.notification_icon_background)
-        .build()
+        .setProgress(100, 0, false)
+        .setOnlyAlertOnce(true)
 
 
     private fun createNotificationChannel() {
@@ -45,8 +54,12 @@ class MyForegroundService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         log("onStartCommand")
         scope.launch {
-            for (i in 0 until 5) {
+            for (i in 0 until 100 step 5) {
                 delay(1000)
+                val notification = notificationBuilder
+                    .setProgress(100, i, false)
+                    .build()
+                notificationManager.notify(NOTIFICATION_ID, notification)
                 log("Timer $i")
             }
             stopSelf()
